@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Account</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/account.css')}}">
+</head>
+
+<body>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-firestore.js"></script>
+    <script>
+      //import { initializeApp } from 'firebase/app'
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyDFOHLm7znnFt-n_HeemWcIhhh_9wlk4qo",
+      authDomain: "travello-fd292.firebaseapp.com",
+      databaseURL: "https://travello-fd292-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "travello-fd292",
+      storageBucket: "travello-fd292.appspot.com",
+      messagingSenderId: "771482085344",
+      appId: "1:771482085344:web:f596fe26914b66601f6d85",
+      measurementId: "G-RN0N391VX2"
+      };
+      firebase.initializeApp(config);
+      const db = firebase.firestore(); //reference to database and store to const db
+      db.settings({ timestampsInSnapshots: true }); 
+    </script>
+    {% extends "template.html" %}
+    {% block content %}
+    <script src = "static/javascript/account.js"></script>
+    <div class="wholeWrapper">
+
+        <nav class="navbar bg-light" id = "sideBarWrapper">
+
+            <!-- Links -->
+            <ul class="navbar-nav">
+                <li class="nav-item" id="imageWrapper">
+                    <img
+                        src="{{ url_for('static',filename='assets/img/userIcon.png')}}"
+                    />
+                </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/account">My account</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="plans">My plans</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/settings">Settings</a>
+              </li>
+            </ul>
+          
+        </nav>
+
+        <div class="welcomeWrapper">
+
+            <div class = "welcomeText">
+                Welcome Back, <div id="email"> <br>user@email.com </div>
+                <script> document.getElementById("email").innerHTML = sessionStorage.getItem("email") </script>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="contentWrapper">
+      <div class="plansTitle">
+        My Plans
+      </div>
+      <!-- <a class = "btn btn-primary" id = "searchButton" type="submit" href="{{ url_for('flightsResult') }}">
+        <div class = "searchText mx-auto my-auto">
+          Search
+        </div>
+      </a> -->
+
+      <div id="planTemplate">
+        <a class="btn btn-primary" id="planWrapper" href="{{ url_for('plans') }}">
+          <div class="planNumber">
+              <p> Plan Template </p>
+              <div class="dateWrapper">
+                <img src ="{{ url_for('static',filename='assets/img/Vector.png')}}" width = 23px height=23px class="calendarIcon"/>
+                <div class="planDate">
+                  01/02-03/02
+                </div>
+              </div>
+          </div>
+          <img src= "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/1a/9e/23/img-20181020-113259-largejpg.jpg?w=1200&h=-1&s=1" class="logo" />
+        </a>
+        </div>
+
+      <div id="new"></div>
+          
+      <script>
+        document.getElementById('planTemplate').style.display = 'none'; //remove planTemplate from html
+
+        function countProperties(obj) { //count amt of elements in an object
+          var count = 0;
+      
+          for(var prop in obj) {
+              if(obj.hasOwnProperty(prop))
+                  ++count;
+          }
+      
+          return count;
+        }
+
+        db.collection('accounts').doc(sessionStorage.getItem("email")).get().then((doc) => {
+          var plans = doc.data().plans;
+          var object = plans; //three plans
+          var numberOfPlans = countProperties(object);
+          console.log("Number of Plans:  " + numberOfPlans);
+          sessionStorage.setItem("numberOfPlans",numberOfPlans);
+          if (numberOfPlans >= 3){
+            document.getElementById("addPlanWrapper").remove();
+          }
+          var counter = 1;
+
+          function clone(counter){
+            if (counter <= numberOfPlans){
+              plan = object[counter]; //look at 1 plan (current plan is looping)
+              var dateValue = plan["startDate"]; //get value of "startDate" key
+
+              // Create anchor element.
+              var box = document.createElement('box');
+              box.setAttribute("class", "btn btn-primary");
+              box.id="planWrapper"
+              //box.href = "{{ url_for('plans') }}";
+              
+              box.onclick = function() { //go to plan details.
+                              sessionStorage.setItem("currentPlan",counter); 
+                              console.log(sessionStorage.getItem("currentPlan"));
+                              //alert('Go to plan'); 
+                              document.location.href = "/plans";
+                            };
+
+              //create another anchor element.
+              var planNo = document.createElement('planNo');
+              planNo.innerHTML = "<div class=\"planNumber\"></div>";
+              var planNumber = document.createTextNode("Plan " + counter);
+              planNo.setAttribute("class", "planNumber");
+              planNo.appendChild(planNumber);
+              box.appendChild(planNo);
+
+              //create another anchor element. //wraps tiny callandar and date together.
+              var dateStuff = document.createElement('dateStuff'); 
+              dateStuff.setAttribute("class", "dateWrapper");
+
+              //create anoter anchor element.
+              var tinyCalendar = document.createElement('tinyCalendar'); //tiny calendar photo
+              tinyCalendar.innerHTML = "<img src =\"{{ url_for('static',filename='assets/img/Vector.png')}}\" width = 23px height=23px class=\"calendarIcon\"/>";
+
+              //create another anchor element. //for date text
+              var dateText = document.createElement('dateText');
+              dateText.setAttribute("class", "planDate");
+              var date = document.createTextNode(dateValue); //put date here
+              dateText.appendChild(date);
+
+              dateStuff.appendChild(tinyCalendar);
+              dateStuff.appendChild(dateText);
+  
+              planNo.appendChild(dateStuff); //put date and tiny calendar bellow plan title
+
+              var photo = document.createElement('photo'); 
+              photo.innerHTML = "<img src= \"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/1a/9e/23/img-20181020-113259-largejpg.jpg?w=1200&h=-1&s=1\" class=\"logo\" />"
+              box.appendChild(photo);
+
+              document.getElementById("new").appendChild(box);
+
+              return clone(counter + 1);
+            } else {
+              return counter;
+            }
+          }
+
+          clone(counter);
+          console.log("Clone recursion finished.");
+
+        });
+      </script>
+
+      <!-- <div class="planWrapper">
+        <div class="planNumber">
+            Plan 2
+            <div class="dateWrapper">
+              <img src ="{{ url_for('static',filename='assets/img/Vector.png')}}" width = 23px height=23px class="calendarIcon"/>
+              <div class="planDate">
+                01/02-03/02
+              </div>
+            </div>
+        </div>
+        <img src= "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/1a/9e/23/img-20181020-113259-largejpg.jpg?w=1200&h=-1&s=1" class="logo" />
+      </div> -->
+
+      <!-- <button type="submit" class="addPlanWrapper">
+        <div class="addPlan">
+          +
+        </div>
+      </button> -->
+
+      <button type="button" id = "addPlanWrapper" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+        <div id = "addp" class="addPlan">
+          +
+        </div>
+      </button>
+      
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Add New Plan</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form method="POST">
+              <div class="modal-body">
+                <div class="planNameWrapper">
+                  Plan Name:
+  
+                  <div class = "col d-flex flex-wrap">
+                    <input
+                      type="search"
+                      class="form-control form-rounded"
+                      id="planName"
+                      name = "planName"
+                      placeholder="Enter plan name"
+                    />
+        
+                  </div>
+                </div>
+  
+                <div class="basicWrapper">
+                  <div class="planNameWrapper">
+                    Start Date:
+    
+                    <div class = "col d-flex flex-wrap">
+                      <input
+                        type="date"
+                        class="form-control form-rounded"
+                        id="startDateSelection"
+                        name = "startDate"
+                        placeholder="Select Date"
+                      />
+          
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="basicWrapper">
+                  <div class="planNameWrapper">
+                    End Date:
+    
+                    <div class = "col d-flex flex-wrap">
+                      <input
+                        type="date"
+                        class="form-control form-rounded"
+                        id="endDateSelection"
+                        name = "endDate"
+                        placeholder="Select Date"
+                      />
+          
+                    </div>
+                  </div>
+                </div>
+  
+              </div>
+              
+            </form>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" id = "closeButton" data-dismiss="modal">Close</button>
+              <button onclick="newPlan()" type="button" class="btn btn-primary" id="saveButton" >Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {% endblock %}
+</body>

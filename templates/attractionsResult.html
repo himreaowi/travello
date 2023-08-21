@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Attractions</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/attractions.css')}}">
+</head>
+
+<body>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-firestore.js"></script>
+    <script>
+    //import { initializeApp } from 'firebase/app'
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyDFOHLm7znnFt-n_HeemWcIhhh_9wlk4qo",
+    authDomain: "travello-fd292.firebaseapp.com",
+    databaseURL: "https://travello-fd292-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "travello-fd292",
+    storageBucket: "travello-fd292.appspot.com",
+    messagingSenderId: "771482085344",
+    appId: "1:771482085344:web:f596fe26914b66601f6d85",
+    measurementId: "G-RN0N391VX2"
+    };
+    firebase.initializeApp(config);
+    const db = firebase.firestore(); //reference to database and store to const db
+    db.settings({ timestampsInSnapshots: true }); 
+    </script>
+    {% extends "template.html" %}
+    {% block content %}
+    <script src = "static/javascript/attractions.js"></script>
+
+    <div class="attractionsImageWrapper">
+      <img src ="{{ url_for('static',filename='assets/img/attractionsHeaderImage.png')}}" width = 100%/>
+      <div class = "attractionsTitle">Attractions</div>
+    </div>
+
+    <form method="POST">
+
+      <div class= "searchWrapper">
+        <div class = "searchBorder mx-auto row">
+          <div class = "col d-flex flex-wrap align-content-center justify-content-center">
+              <input
+                type="search"
+                class="form-control form-rounded"
+                id="searchAttraction"
+                name = "searchAttraction"
+                placeholder="Search Attraction"
+              />
+  
+          </div>
+  
+          <div class = "col d-flex flex-wrap align-content-center justify-content-center">
+            <input
+              type="date"
+              class="form-control form-rounded"
+              id="dateSelection"
+              name = "dateSelection"
+              placeholder="Select Date"
+            />
+  
+          </div>
+  
+          <div class = " col d-flex flex-wrap align-content-center justify-content-center">
+  
+              <span class = "form-rounded px-4 d-flex align-items-center">
+                <h2 class = "choiceFont my-auto ">Total:</h2>
+                <input
+                  type="search"
+                  class="form-control border-0 ml-3"
+                  id="total_pax"
+                  name = "total_pax"
+                  placeholder = "0"
+                />
+              </span>
+                <span class = "row d-flex  align-items-center form-rounded px-4 mt-3">
+                  <h1 class = "choiceFont my-auto">Adults:</h1>
+                  <select
+                      name="no_adults"
+                      class="col form-control border-0 mr-1"
+                      id="adults"
+                      name = "adults"
+                      onchange = "cal_pax()"
+  
+                    >
+                      {% for adults in no_adults %}
+                          <option value="{{adults}}">{{adults}}</option>"
+                      {% endfor %}
+                    </select>
+  
+                    <h1 class = "choiceFont my-auto">Children:</h1>
+  
+  
+                    <select
+                    name="no_children"
+                    class="col form-control border-0 ml-1"
+                    id="children"
+                    name = "children"
+                    onchange = "cal_pax()"
+  
+                    >
+                    {% for child in no_children %}
+                        <option value="{{child}}">{{child}}</option>"
+                    {% endfor %}
+                    </select>
+  
+  
+                  </span>
+  
+          </div>
+  
+          <div class = "col-1 d-flex flex-wrap align-content-center mr-3">
+            <a href="/attractionsResult" class = "searchButton" id = "searchButton" type="submit">
+              <div class = "searchText mx-auto my-auto">
+                Search
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </form>
+
+    <ul class = "attractionsList">
+      {% for result in finalList %}
+      <li class = "flex-item mx-auto row">
+
+        <div class= "col d-flex justify-content-center align-items-center"> 
+          <img src= "{{result.imageLink}}" class="logo" />
+         </div>
+
+        <!-- old code-->
+        <!--
+        <p style="color:black;">{{result.name}}</p>
+        <p style="color:black;">{{result.address.street}} {{result.address.postalcode}}</p>
+        <p style="color:black;">{{result.phone}}</p>
+        <p style="color:black;">$SGD{{result.price}}</p>
+        -->
+        <!--checkin-checkout date-->
+
+        <div class = "col-6 d-flex align-items-center" id = "{{result.name}}block">
+          <div>
+            <div class = "font2" id = "name{{result.name}}">{{result.name}}</div>
+            <div class = "font2" >{{result.rating}} </div>
+            <div class = "font2" id = "address{{result.name}}">{{result.address}}</div>
+
+          </div>
+        </div>
+        <!--button to save to plan-->
+        <div class = "col my-auto ml-0">
+          <div class = "">
+            <div class = "font3" id = "price{{result.name}}">
+              $SGD{{result.price}}
+            </div>
+
+            <!-- <button type="button" id = "addPlanWrapper" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+              <div class="addPlan">
+                +
+              </div>
+            </button> -->
+            
+            <!-- <a class = "addButton mt-2" id = "addButton" type="submit">
+              <div class = "searchText mx-auto my-auto">
+                Add to Plan
+              </div>
+            </a> -->
+            <div class = "a" id = "ai">
+              <input type="submit" name="addPlan" value="{{hotelName}}" class="random" >
+                <a class = "addButton mt-2 mx-auto" id = "addButton" type="submit" data-toggle="modal" data-target="#exampleModalCenter" onclick = "show('{{result.name}}')">
+                  <!-- <input type ="submit" name="addPlan" value="{{hotelName}}"> -->
+                  <div class = "searchText mx-auto my-auto">
+                    Add to Plan
+                  </div>
+                </a>
+              </input>
+            </div>
+            <script>
+              //nuke the buttons if the user is not submit
+              if (sessionStorage.getItem("email") == null){ //not logged in
+                  const buttons = document.querySelectorAll('.a');
+                  buttons.forEach(button =>{button.remove()});
+                }
+              var name;
+              var price;
+              var address;
+              var date;
+              function show(n){
+                name = document.getElementById('name'.concat(n)).innerHTML;
+                price = document.getElementById('price'.concat(n)).innerHTML;
+                address = document.getElementById('address'.concat(n)).innerHTML;
+              }
+      
+            </script>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+
+     <!-- Modal -->
+     <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">{{hotelName}}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="planNameWrapper">
+              Plan Name:
+
+              <div class = "col d-flex flex-wrap">
+
+                <!-- <input
+                  type="search"
+                  class="form-control form-rounded"
+                  id="searchHotels"
+                  name = "searchHotels"
+                  placeholder="Enter plan name"
+                /> -->
+
+                <select
+                  name="plan_no"
+                  class="form-control form-rounded"
+                  id="plan_no"
+                  name = "plan_no"
+                >
+                {% for plan_no in plan_no %}
+                    <option value="{{plan_no}}">{{plan_no}}</option>"
+                {% endfor %}
+                </select>
+    
+              </div>
+
+
+              
+            </div>
+            
+          </div>
+          
+          <div class="modal-footer">
+            <div class="planNameWrapper">
+              Date:
+
+              <div class = "col d-flex flex-wrap">
+                <input
+                type="date"
+                class="form-control form-rounded"
+                id="plandateSelection"
+                name = "plandateSelection"
+                placeholder="Select Date"
+              />
+              </div>
+            </div>
+
+            
+            <button type="button" class="btn btn-secondary" id = "closeButton" data-dismiss="modal">Close</button>
+            <button onclick="savePlans()" type="button" class="btn btn-primary" id="saveButton" data-dismiss="modal">Save</button>
+          
+            <script>
+              function countProperties(obj) { //count amt of elements in an object
+                var count = 0;
+            
+                for(var prop in obj) {
+                    if(obj.hasOwnProperty(prop))
+                        ++count;
+                }
+            
+                return count;
+              }
+              function savePlans(){
+                
+                date = new Date(document.getElementById("plandateSelection").value);
+                var which_planObj = document.getElementById("plan_no");
+                var which_plan = parseInt(which_planObj.options[which_planObj.selectedIndex].value);
+                console.log(name);
+                console.log(price);
+                console.log(address);
+                console.log(which_plan);
+                console.log(date);
+
+                if(!which_plan){
+                  alert("No plan chosen!");
+                }
+
+                if(date == "Invalid Date"){
+                  date = null;
+                  console.log("No date chosen");
+                  alert("No date chosen!");
+                }
+              
+
+                db.collection('accounts').doc(sessionStorage.getItem("email")).get().then((doc) => {
+                  var plans = doc.data().plans;
+                  var object = plans; //three plans
+                  var plan = object[which_plan];
+                  var planSelected = which_plan;
+                  //var date = 
+
+                  var copyPlan = {};
+                  
+                  Object.assign(copyPlan,plan);
+
+                  console.log(copyPlan.attractions);
+                  var numberOfAttractions = countProperties(copyPlan.attractions);
+                  console.log(numberOfAttractions);
+
+                  var newAttraction = {}
+
+                  //var date = new Date(document.getElementById("plandateSelection").value);
+                  //date = String(date);
+                  var keyValue = date;
+
+                  var attractionCounter = numberOfAttractions + 1;
+                  newAttraction[attractionCounter] = {
+                                              name:name,
+                                              address : address,
+                                              date:date,
+                                              price : price
+                                            };
+
+                  copyPlan.attractions = newAttraction;
+
+                  //console.log(copyPlan.attractions);
+
+                  //plan.attractions = newAttraction; 
+
+                  var finalPlan = {};
+                  finalPlan[which_plan] = copyPlan;
+
+                  
+                  db.collection('accounts').doc(sessionStorage.getItem("email")).set({
+                    plans : finalPlan
+                  }, { merge : true});
+                  
+                  console.log("Attraction object:");
+                  console.log(newAttraction);
+                });
+
+              }
+            </script>
+          </div>
+          
+        
+        </div>
+      </div>
+    </div>
+
+
+    {% endblock %}
+  </body>

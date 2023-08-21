@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Account</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/account.css')}}">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/plans.css')}}">
+  <!-- <link rel="stylesheet" href="{{ url_for('static',filename='css/flights.css')}}"> -->
+
+</head>
+
+<body>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-firestore.js"></script>
+    <script>
+      //import { initializeApp } from 'firebase/app'
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyDFOHLm7znnFt-n_HeemWcIhhh_9wlk4qo",
+      authDomain: "travello-fd292.firebaseapp.com",
+      databaseURL: "https://travello-fd292-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "travello-fd292",
+      storageBucket: "travello-fd292.appspot.com",
+      messagingSenderId: "771482085344",
+      appId: "1:771482085344:web:f596fe26914b66601f6d85",
+      measurementId: "G-RN0N391VX2"
+      };
+      firebase.initializeApp(config);
+      const db = firebase.firestore(); //reference to database and store to const db
+      db.settings({ timestampsInSnapshots: true }); 
+    </script>
+    {% extends "template.html" %}
+    {% block content %}
+
+    <!-- <div class="wholeWrapper">
+
+
+    </div> -->
+
+    <nav class="navbar bg-light" id = "sideBarWrapper">
+
+      <!-- Links -->
+      <ul class="navbar-nav"> <!-- ul tag defines an unordered (bulleted) list -->
+        <li class="nav-item" id="imageWrapper">
+            <img
+                src="{{ url_for('static',filename='assets/img/userIcon.png')}}"
+            />
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/account">My account</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="plans">My plans</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/settings">Settings</a>
+        </li>
+      </ul>
+    </nav>
+
+  <div class="overallWrapper">
+    <div class="headerWrapper">
+      <div class = "headerText" id="planNumber">
+          Plan
+      </div>
+      <div class="dateText" id="startAndEndDate">
+      </div>
+    </div>
+
+    <script>
+      //display heading stuff
+      var currentPlan = sessionStorage.getItem("currentPlan");
+      var planNumberTextElement = document.createTextNode(currentPlan); //put current plan number here
+      //planNumber.setAttribute("class", "headerText");
+      document.getElementById("planNumber").appendChild(planNumberTextElement);
+
+      var userEmail = sessionStorage.getItem("email");
+      db.collection('accounts').doc(userEmail).get().then((doc) => {
+          var plans = doc.data().plans;
+          var object = plans; //plans
+
+          plan = object[currentPlan]; //look at 1 plan
+          var startDate = plan["startDate"];
+          var endDate = plan["endDate"];
+
+          //create text element
+          var startAndEndDate = startDate + " to " + endDate;
+          var dateTextElement = document.createTextNode(startAndEndDate); //put current plan number here
+          document.getElementById("startAndEndDate").appendChild(dateTextElement);
+
+          console.log(plan);
+      });
+    </script>
+
+    <style>
+
+      .title {
+        padding-left: 33%;
+        margin-top: 50px;
+        font-family: "Montserrat";
+        font-style: normal;
+        font-weight: 700;
+        font-size: 25px;
+        color: #000000;
+      }
+
+      .itineraryDate {
+        padding-left: 33%;
+        margin-top: 3px;
+        font-family: "Montserrat";
+        font-style: normal;
+        font-weight: 700;
+        font-size: 2p00x;
+        color: #000000;
+      }
+
+      /*
+      .newScrollerWrapper {
+        padding-left: 33%;
+        display: flex;
+        overflow-x: auto;
+        max-height: 550px;
+        max-width: 1800px;
+        margin-top: 12px;
+        padding-bottom: 3%;
+
+        min-width: 350px;
+        height: 200px;
+        text-align: left;
+        color: black;
+        font-size: 18;
+        background-color: #f2f3f9;
+        margin-right: 36px;
+        border-radius: 20px;
+        box-shadow: 0px 30px 80px rgba(88, 92, 229, 0.12);
+        border: none;
+      }
+      */
+
+      .newScrollerWrapper {
+        padding-left: 1%;
+        padding-bottom: 3%;
+        padding-top: 1%;
+        overflow-x: auto;
+        display: flex;
+        max-height: 550px;
+        max-width: 1000px;
+        margin-top: 12px;
+        
+
+        min-width: 350px;
+        height: 200px;
+        text-align: left;
+        color: black;
+        font-size: 18;
+        background-color: #f2f3f9;
+        margin-left: 500px;
+        border-radius: 20px;
+        box-shadow: 0px 30px 80px rgba(88, 92, 229, 0.12);
+        border: none;
+      }
+
+      .attractionsScrollerWrapper {
+        padding-left: 1%;
+        padding-bottom: 3%;
+        padding-top: 1%;
+        overflow-x: auto;
+        display: flex;
+        max-height: 550px;
+        max-width: 1000px;
+        margin-top: 12px;
+        
+
+        min-width: 350px;
+        height: 300px;
+        text-align: left;
+        color: black;
+        font-size: 18;
+        background-color: #f2f3f9;
+        margin-left: 500px;
+        border-radius: 20px;
+        box-shadow: 0px 30px 80px rgba(88, 92, 229, 0.12);
+        border: none;
+      }
+
+    </style>
+
+    <div class="title">
+      Flights
+    </div>
+
+    <div class="scrolling-wrapper" id="allFlightsDisplay">
+    </div>
+
+    <script>
+      function countProperties(obj) { //count amt of elements in an object
+        var count = 0;
+    
+        for(var prop in obj) {
+            if(obj.hasOwnProperty(prop))
+                ++count;
+        }
+    
+        return count;
+      }
+      
+      var currentPlan = sessionStorage.getItem("currentPlan");
+      db.collection('accounts').doc(userEmail).get().then((doc) => {
+        var plans = doc.data().plans;
+        var object = plans; //plans
+
+        plan = object[currentPlan]; //look at 1 plan
+        var flights = plan["flights"];
+        var noOfFlights = countProperties(flights)
+
+        //var planNumberTextElement = document.createTextNode(attractions[0].name);
+
+        console.log("Number of hotels in plan: " + noOfFlights);
+        console.log("Hotels object: " + flights[1].name); 
+        //console.log("Attractions object: " + attractions[Object.keys(attractions)[0]].name); //gets 1st object in attractions
+
+        var counter = 0; //for indexing attraction in attractions
+        function cloneFlights(counter){
+          if(counter < noOfFlights){
+            var flight = flights[Object.keys(flights)[counter]];
+            
+            /*
+            var attractionDates = Object.keys(attractions);
+            var attractionDate = attractionDates[counter];
+            */
+
+            
+            var flightD = flight.date;
+            const flightDate = flightD.toDate().toDateString();
+            const flightTime = flightD.toDate().toLocaleTimeString();
+            
+            if (flightDate == null){
+              flightDate = "No date selected";
+            }
+            var flightName = flight.airline;
+            var flightPrice = flight.price;
+            
+
+            //-----Create HTML elements
+            var ul = document.createElement('ul');
+            ul.setAttribute("class", "card ");
+            ul.setAttribute("style", "list-style:none");
+            
+            
+            //Name li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font1");
+            let textNode = document.createTextNode(flightName);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            //Date li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(flightDate);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            // time of flight li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(flightTime);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+          
+            //Address price
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(flightPrice);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            var hotelDisplay = document.getElementById('allFlightsDisplay'); //get location of display
+            hotelDisplay.appendChild(ul);
+            //---end of html displays
+
+            
+            console.log("Flight")
+            console.log("Flight name: " + hotelName);
+            console.log("Flight date: " + hotelDate);
+            console.log("Flight address: " + hotelAddress);
+            console.log("Flight price: " + hotelPrice);
+            return cloneFlights(counter + 1);
+          } else {
+            return counter
+          }
+        }
+
+        console.log(cloneFlights(counter)); 
+      });
+    </script>
+
+    <div class="title">
+      Hotels
+    </div>
+
+    <div class="scrolling-wrapper" id="allHotelsDisplay">
+    </div>
+
+    <script>
+      function countProperties(obj) { //count amt of elements in an object
+        var count = 0;
+    
+        for(var prop in obj) {
+            if(obj.hasOwnProperty(prop))
+                ++count;
+        }
+    
+        return count;
+      }
+      
+      var currentPlan = sessionStorage.getItem("currentPlan");
+      db.collection('accounts').doc(userEmail).get().then((doc) => {
+        var plans = doc.data().plans;
+        var object = plans; //plans
+
+        plan = object[currentPlan]; //look at 1 plan
+        var hotels = plan["hotels"];
+        var noOfHotels = countProperties(hotels)
+
+        //var planNumberTextElement = document.createTextNode(attractions[0].name);
+
+        console.log("Number of hotels in plan: " + noOfHotels);
+        console.log("Hotels object: " + hotels[1].name); 
+        //console.log("Attractions object: " + attractions[Object.keys(attractions)[0]].name); //gets 1st object in attractions
+
+        var counter = 0; //for indexing attraction in attractions
+        function cloneHotels(counter){
+          if(counter < noOfHotels){
+            var hotel = hotels[Object.keys(hotels)[counter]];
+            
+            /*
+            var attractionDates = Object.keys(attractions);
+            var attractionDate = attractionDates[counter];
+            */
+
+            
+            var hotelD = hotel.date;
+            const hotelDate = hotelD.toDate().toDateString();
+            
+            
+            if (hotelDate == null){
+              hotelDate = "No date selected";
+            }
+            var hotelName = hotel.name;
+            var hotelAddress = hotel.address;
+            var hotelPrice = hotel.price;
+            var hotelPhone = hotel.phone;
+            
+
+            //-----Create HTML elements
+            var ul = document.createElement('ul');
+            ul.setAttribute("class", "card ");
+            ul.setAttribute("style", "list-style:none");
+            
+            
+            //Name li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font1");
+            let textNode = document.createTextNode(hotelName);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            //Date li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(hotelDate);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            //Address li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(hotelAddress);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+            // Phone number
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(hotelPhone);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            //Address price
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(hotelPrice);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            var hotelDisplay = document.getElementById('allHotelsDisplay'); //get location of display
+            hotelDisplay.appendChild(ul);
+            //---end of html displays
+
+            
+            console.log("Hotel")
+            console.log("Hotel name: " + hotelName);
+            console.log("Hotel date: " + hotelDate);
+            console.log("Hotel address: " + hotelAddress);
+            console.log("Hotel price: " + hotelPrice);
+            return cloneHotels(counter + 1);
+          } else {
+            return counter
+          }
+        }
+
+        console.log(cloneHotels(counter)); 
+      });
+    </script>
+
+    <div class="title">
+      Attractions
+    </div>
+
+    <div class="scrolling-wrapper" id="allAttractionsDisplay">
+    </div>
+
+    <script>
+      function countProperties(obj) { //count amt of elements in an object
+        var count = 0;
+    
+        for(var prop in obj) {
+            if(obj.hasOwnProperty(prop))
+                ++count;
+        }
+    
+        return count;
+      }
+      
+      var currentPlan = sessionStorage.getItem("currentPlan");
+      db.collection('accounts').doc(userEmail).get().then((doc) => {
+        var plans = doc.data().plans;
+        var object = plans; //plans
+
+        plan = object[currentPlan]; //look at 1 plan
+        var attractions = plan["attractions"];
+        var noOfAttractions = countProperties(attractions)
+
+        //var planNumberTextElement = document.createTextNode(attractions[0].name);
+
+        console.log("Number of attractions in plan: " + noOfAttractions);
+        console.log("Attractions object: " + attractions[1].name); 
+        //console.log("Attractions object: " + attractions[Object.keys(attractions)[0]].name); //gets 1st object in attractions
+
+        var counter = 0; //for indexing attraction in attractions
+        function cloneAttractions(counter){
+          if(counter < noOfAttractions){
+            var attraction = attractions[Object.keys(attractions)[counter]];
+            /*
+            var attractionDates = Object.keys(attractions);
+            var attractionDate = attractionDates[counter];
+            */
+
+            
+            var attractionD = attraction.date;
+            const attractionDate = attractionD.toDate().toDateString();
+    
+            if (attractionDate == null){
+              attractionDate = "No date selected";
+            }
+            var attractionName = attraction.name;
+            var attractionAddress = attraction.address;
+            var attractionPrice = attraction.price;
+
+            //-----Create HTML elements
+            var ul = document.createElement('ul');
+            ul.setAttribute("class", "card ");
+            ul.setAttribute("style", "list-style:none");
+            
+
+            //Name li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font1");
+            let textNode = document.createTextNode(attractionName);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            //Date li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(attractionDate);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            //Address li
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(attractionAddress);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            //Address price
+            var listElement = document.createElement("LI");
+            listElement.setAttribute("class", "font2" )
+            textNode = document.createTextNode(attractionPrice);
+            listElement.appendChild(textNode);
+            ul.appendChild(listElement);
+
+            var attractionDisplay = document.getElementById('allAttractionsDisplay'); //get location of display
+            attractionDisplay.appendChild(ul);
+            //---end of html displays
+
+            
+            // console.log("Attraction")
+            // console.log("Attraction name: " + attractionName);
+            // console.log("Attraction date: " + attractionDate);
+            // console.log("Attraction address: " + attractionAddress);
+            // console.log("Attraction price: " + attractionPrice);
+            return cloneAttractions(counter + 1);
+          } else {
+            return counter
+          }
+        }
+        console.log(cloneAttractions(counter));
+        
+      });
+    </script>
+
+
+
+    {% endblock %}
+</body>
